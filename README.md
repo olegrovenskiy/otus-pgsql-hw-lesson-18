@@ -1,1 +1,1 @@
-# otus-pgsql-hw-lesson-18
+# ДЗ otus-pgsql-hw-lesson-18
