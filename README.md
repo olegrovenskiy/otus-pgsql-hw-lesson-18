@@ -58,6 +58,8 @@
 
 ### 1. Реализовать прямое соединение двух или более таблиц
 
+Пример соединения 2-х таблиц по полю id_model
+
     lesson18=#
     lesson18=# SELECT *
     lesson18-# FROM bus b
@@ -88,10 +90,35 @@
     
     lesson18=#
 
+Пример объяснения запроса
+
+    EXPLAIN
+    SELECT *
+    FROM bus b, model_bus mb
+    WHERE b.id_model = mb.id;
+
+
+        lesson18=#     EXPLAIN
+        lesson18-#     SELECT *
+        lesson18-#     FROM bus b, model_bus mb
+        lesson18-#     WHERE b.id_model = mb.id;
+                                      QUERY PLAN
+        -----------------------------------------------------------------------
+         Hash Join  (cost=1.14..30.51 rows=32 width=77)
+           Hash Cond: (mb.id = b.id_model)
+           ->  Seq Scan on model_bus mb  (cost=0.00..22.70 rows=1270 width=36)
+           ->  Hash  (cost=1.06..1.06 rows=6 width=41)
+                 ->  Seq Scan on bus b  (cost=0.00..1.06 rows=6 width=41)
+        (5 rows)
+        
+        lesson18=#
+        lesson18=#
 
 
 
 ### 2. Реализовать левостороннее (или правостороннее) соединение двух или более таблиц
+
+Пример левосторонего и правосторонего объединения
 
     lesson18=#
     lesson18=# SELECT *
@@ -126,6 +153,28 @@
     (7 rows)
     
     lesson18=#
+
+
+EXPLAIN
+SELECT *
+FROM bus b
+RIGHT JOIN model_bus mb ON b.id_model = mb.id;
+
+        lesson18=#
+        lesson18=# EXPLAIN
+        lesson18-# SELECT *
+        lesson18-# FROM bus b
+        lesson18-# RIGHT JOIN model_bus mb ON b.id_model = mb.id;
+                                      QUERY PLAN
+        -----------------------------------------------------------------------
+         Hash Left Join  (cost=1.14..30.51 rows=1270 width=77)
+           Hash Cond: (mb.id = b.id_model)
+           ->  Seq Scan on model_bus mb  (cost=0.00..22.70 rows=1270 width=36)
+           ->  Hash  (cost=1.06..1.06 rows=6 width=41)
+                 ->  Seq Scan on bus b  (cost=0.00..1.06 rows=6 width=41)
+        (5 rows)
+        
+        lesson18=#
 
 
 
@@ -219,9 +268,80 @@
 
 
 
+### Статистика по таблицам
 
-### 7. Сделать комментарии на каждый запрос
+analyze bus;
+select *
+from pg_stats
+where tablename = 'bus';
 
 
+Пример статистики по таблице bus
 
-К работе приложить структуру таблиц, для которых выполнялись соединения
+        lesson18=# select *
+        from pg_stats
+        where tablename = 'bus';
+        -[ RECORD 1 ]----------+------------------------------------------------------------------------------------------------
+        schemaname             | public
+        tablename              | bus
+        attname                | id
+        inherited              | f
+        null_frac              | 0
+        avg_width              | 4
+        n_distinct             | -1
+        most_common_vals       |
+        most_common_freqs      |
+        histogram_bounds       | {1,2,3,4,5,6}
+        correlation            | 1
+        most_common_elems      |
+        most_common_elem_freqs |
+        elem_count_histogram   |
+        -[ RECORD 2 ]----------+------------------------------------------------------------------------------------------------
+        schemaname             | public
+        tablename              | bus
+        attname                | route
+        inherited              | f
+        null_frac              | 0
+        avg_width              | 29
+        n_distinct             | -1
+        most_common_vals       |
+        most_common_freqs      |
+        histogram_bounds       | {Москва-Болшево,Москва-Волгорад,Москва-Иваново,Москва-Кострома,Москва-Пушкино,Москва-Ярославль}
+        correlation            | -0.028571429
+        most_common_elems      |
+        most_common_elem_freqs |
+        elem_count_histogram   |
+        -[ RECORD 3 ]----------+------------------------------------------------------------------------------------------------
+        schemaname             | public
+        tablename              | bus
+        attname                | id_model
+        inherited              | f
+        null_frac              | 0.16666667
+        avg_width              | 4
+        n_distinct             | -0.5
+        most_common_vals       | {1,2}
+        most_common_freqs      | {0.33333334,0.33333334}
+        histogram_bounds       |
+        correlation            | 1
+        most_common_elems      |
+        most_common_elem_freqs |
+        elem_count_histogram   |
+        -[ RECORD 4 ]----------+------------------------------------------------------------------------------------------------
+        schemaname             | public
+        tablename              | bus
+        attname                | id_driver
+        inherited              | f
+        null_frac              | 0.16666667
+        avg_width              | 4
+        n_distinct             | -0.8333333
+        most_common_vals       |
+        most_common_freqs      |
+        histogram_bounds       | {1,2,3,4,5}
+        correlation            | 1
+        most_common_elems      |
+        most_common_elem_freqs |
+        elem_count_histogram   |
+        
+        lesson18=#
+        
+
